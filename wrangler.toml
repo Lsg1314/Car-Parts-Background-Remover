@@ -1,0 +1,8 @@
+ame = "car-parts-background-remover"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "car-parts-background-remover"
+database_id = "234b227f-240b-4628-a088-7efead1f177f"
