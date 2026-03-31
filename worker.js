@@ -26,7 +26,7 @@ h1 { color: #667eea; text-align: center; margin-bottom: 20px; }
 <body>
 <div class="container">
   <div class="nav">
-    <h1>🚗 Car Parts BG Remover</h1>
+    <h1>🚗 <a href="https://carpartsbackgroundremover.com/" style="color: #667eea; text-decoration: none;">carpartsbackgroundremover</a></h1>
     <div>
       <a href="/">Home</a>
       <a href="/pricing">Pricing</a>
@@ -265,7 +265,7 @@ function handleGoogleLogin(env) {
     status: 302,
     headers: {
       'Location': authUrl.toString(),
-      'Set-Cookie': \`oauth_state=\${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600\`
+      'Set-Cookie': `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`
     }
   });
 }
@@ -298,23 +298,23 @@ async function handleCallback(request, env) {
     picture: payload.picture,
   };
 
-  await env.DB.prepare(\`
+  await env.DB.prepare(`
     INSERT INTO users (google_id, email, name, picture, last_login)
     VALUES (?, ?, ?, ?, datetime('now'))
     ON CONFLICT(google_id) DO UPDATE SET
       email = excluded.email, name = excluded.name, picture = excluded.picture, last_login = datetime('now')
-  \`).bind(user.google_id, user.email, user.name, user.picture).run();
+  `).bind(user.google_id, user.email, user.name, user.picture).run();
 
-  await env.DB.prepare(\`INSERT OR IGNORE INTO quotas (google_id, total, used) VALUES (?, 3, 0)\`).bind(user.google_id).run();
+  await env.DB.prepare(`INSERT OR IGNORE INTO quotas (google_id, total, used) VALUES (?, 3, 0)`).bind(user.google_id).run();
 
   const sessionToken = crypto.randomUUID();
-  await env.DB.prepare(\`INSERT INTO sessions (token, google_id, created_at) VALUES (?, ?, datetime('now'))\`).bind(sessionToken, user.google_id).run();
+  await env.DB.prepare(`INSERT INTO sessions (token, google_id, created_at) VALUES (?, ?, datetime('now'))`).bind(sessionToken, user.google_id).run();
 
   return new Response(null, {
     status: 302,
     headers: {
       'Location': '/',
-      'Set-Cookie': \`session=\${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000\`
+      'Set-Cookie': `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`
     }
   });
 }
@@ -327,9 +327,9 @@ async function handleMe(request, env) {
     });
   }
 
-  const session = await env.DB.prepare(\`
+  const session = await env.DB.prepare(`
     SELECT u.* FROM users u JOIN sessions s ON u.google_id = s.google_id WHERE s.token = ?
-  \`).bind(sessionToken).first();
+  `).bind(sessionToken).first();
 
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid session' }), { 
@@ -358,19 +358,19 @@ async function handleQuota(request, env) {
     });
   }
 
-  const session = await env.DB.prepare(\`SELECT google_id FROM sessions WHERE token = ?\`).bind(sessionToken).first();
+  const session = await env.DB.prepare(`SELECT google_id FROM sessions WHERE token = ?`).bind(sessionToken).first();
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid session' }), { 
       status: 401, headers: { 'Content-Type': 'application/json' }
     });
   }
 
-  const quota = await env.DB.prepare(\`SELECT total, used FROM quotas WHERE google_id = ?\`).bind(session.google_id).first();
+  const quota = await env.DB.prepare(`SELECT total, used FROM quotas WHERE google_id = ?`).bind(session.google_id).first();
   return new Response(JSON.stringify(quota || { total: 3, used: 0 }), { headers: { 'Content-Type': 'application/json' } });
 }
 
 function getCookie(request, name) {
   const cookies = request.headers.get('Cookie') || '';
-  const match = cookies.match(new RegExp(\`(^| )\${name}=([^;]+)\`));
+  const match = cookies.match(new RegExp(`(^| )${name}=([^;]+)`));
   return match ? match[2] : null;
 }
