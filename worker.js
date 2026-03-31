@@ -1,5 +1,5 @@
 // 从 Cloudflare 环境变量读取（在 Dashboard 的 Workers 设置里配置）
-const REDIRECT_URI = 'https://carpartsbackgroundremover.com/auth/callback';
+const REDIRECT_URI = 'https://carpartsbackgroundremover.com/auth/google/callback';
 
 // 测试页面
 const TEST_HTML = `<!DOCTYPE html>
@@ -63,7 +63,7 @@ export default {
     if (url.pathname === '/auth/google') {
       return handleGoogleLogin(env);
     }
-    if (url.pathname === '/auth/callback') {
+    if (url.pathname === '/auth/google/callback') {
       return handleCallback(request, env);
     }
     if (url.pathname === '/auth/me') {
